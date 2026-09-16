@@ -1,0 +1,91 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CadrAggency.ViewModels"
+        xmlns:conv="clr-namespace:CadrAggency.Converters"
+        x:Class="CadrAggency.Views.EditCandidateDialog"
+        x:DataType="vm:EditCandidateDialogViewModel"
+        x:CompileBindings="False"
+        Title="Редактирование кандидата"
+        Width="520" Height="750"
+        WindowStartupLocation="CenterOwner">
+
+    <DockPanel Margin="10">
+        <ScrollViewer DockPanel.Dock="Top" Height="620">
+            <StackPanel Spacing="10">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Полное имя:" Width="130" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding FullName}" Width="280"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Телефон:" Width="130" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Telephone}" Width="280"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Email:" Width="130" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding Email}" Width="280"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Дата рождения:" Width="130" VerticalAlignment="Center"/>
+                    <DatePicker SelectedDate="{Binding BirthDate}" Width="280"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Образование:" Width="130" VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding EducationLevels}"
+                              SelectedItem="{Binding Education}"
+                              Width="280">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={x:Static conv:EnumDescriptionConverter.Instance}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Навыки:" Width="130" VerticalAlignment="Top"/>
+                    <TextBox Text="{Binding Skills}" Width="280" Height="60" AcceptsReturn="True"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Опыт (лет):" Width="130" VerticalAlignment="Center"/>
+                    <NumericUpDown Value="{Binding ExperienceYears}" Width="280" Increment="1" Minimum="0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Зарплата:" Width="130" VerticalAlignment="Center"/>
+                    <NumericUpDown Value="{Binding ExpectedSalary}" Width="280" Increment="1000" Minimum="0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Статус:" Width="130" VerticalAlignment="Center"/>
+                    <ComboBox ItemsSource="{Binding Statuses}"
+                              SelectedItem="{Binding Status}"
+                              Width="280">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Converter={x:Static conv:EnumDescriptionConverter.Instance}}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Резюме:" Width="130" VerticalAlignment="Top"/>
+                    <TextBox Text="{Binding ResumeText}" Width="280" Height="60" AcceptsReturn="True"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Файл резюме:" Width="130" VerticalAlignment="Center"/>
+                    <Button Content="Прикрепить файл" Command="{Binding AttachFileCommand}" Width="170"/>
+                    <TextBlock Text="{Binding ResumeFilePath}" VerticalAlignment="Center" MaxWidth="110" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="Red"
+                           TextWrapping="Wrap"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0" Spacing="10">
+            <Button Content="Сохранить" Command="{Binding SaveCommand}" Background="Green" Foreground="White" Width="110"/>
+            <Button Content="Отмена" Command="{Binding CancelCommand}" Background="Red" Foreground="White" Width="110"/>
+        </StackPanel>
+    </DockPanel>
+</Window>
+
+

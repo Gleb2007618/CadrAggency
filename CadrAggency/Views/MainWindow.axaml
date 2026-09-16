@@ -1,0 +1,241 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:CadrAggency.ViewModels"
+        xmlns:conv="clr-namespace:CadrAggency.Converters"
+        x:Class="CadrAggency.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        x:CompileBindings="False"
+        Title="HR Agency Manager"
+        WindowState="Maximized"
+        MinWidth="1280" MinHeight="720"
+        Width="1280" Height="720">
+
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10">
+            <TextBlock Text="HR Agency Manager" Classes="h1"/>
+            <Button Content="Обновить" Command="{Binding LoadDataCommand}" Margin="20,0,0,0"/>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="10" Spacing="20">
+            <Border Background="LightGray" Padding="15" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="Всего кандидатов" FontSize="12"/>
+                    <TextBlock Text="{Binding TotalCandidates}" Classes="h2"/>
+                </StackPanel>
+            </Border>
+            <Border Background="LightGray" Padding="15" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="Активных вакансий" FontSize="12"/>
+                    <TextBlock Text="{Binding ActiveVacancies}" Classes="h2"/>
+                </StackPanel>
+            </Border>
+            <Border Background="LightGray" Padding="15" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="Собеседований на неделе" FontSize="12"/>
+                    <TextBlock Text="{Binding WeeklyInterviews}" Classes="h2"/>
+                </StackPanel>
+            </Border>
+            <Border Background="LightGray" Padding="15" CornerRadius="8">
+                <StackPanel>
+                    <TextBlock Text="Успешных за месяц" FontSize="12"/>
+                    <TextBlock Text="{Binding MonthlySuccessful}" Classes="h2"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <TabControl Margin="10,10,0,0" Padding="0">
+            <TabControl.Styles>
+                <Style Selector="TabItem">
+                    <Setter Property="Padding" Value="0,6"/>
+                    <Setter Property="Margin" Value="0,0,16,0"/>
+                    <Setter Property="FontSize" Value="16"/>
+                </Style>
+            </TabControl.Styles>
+
+            <TabItem Header="Кандидаты">
+                <DockPanel Margin="0">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5" Spacing="10">
+                        <TextBox Text="{Binding SearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                 Watermark="Поиск..." Width="180"/>
+                        <ComboBox ItemsSource="{Binding Statuses}"
+                                  SelectedItem="{Binding SelectedStatus}" Width="170">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={x:Static conv:EnumDescriptionConverter.Instance}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox ItemsSource="{Binding EducationLevels}"
+                                  SelectedItem="{Binding SelectedEducation}" Width="200">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={x:Static conv:EnumDescriptionConverter.Instance}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <TextBox Text="{Binding MinSalary, UpdateSourceTrigger=PropertyChanged}"
+                                 Watermark="Мин. зарплата" Width="110"/>
+                        <TextBox Text="{Binding MaxSalary, UpdateSourceTrigger=PropertyChanged}"
+                                 Watermark="Макс. зарплата" Width="110"/>
+                        <Button Content="Поиск" Command="{Binding SearchCommand}"/>
+                        <Button Content="Сбросить фильтры" Command="{Binding ResetFiltersCommand}"/>
+                        <Button Content="Экспорт" Command="{Binding ExportCandidatesCommand}"/>
+                        <Button Content="Импорт" Command="{Binding ImportCandidatesCommand}"/>
+                        <Button Content="Добавить" Command="{Binding AddCandidateCommand}" Background="Green" Foreground="White"/>
+                        <Button Content="Редактировать" Command="{Binding EditCandidateCommand}" Background="DodgerBlue" Foreground="White"/>
+                        <Button Content="Удалить" Command="{Binding DeleteCandidateCommand}" Background="Red" Foreground="White"/>
+                    </StackPanel>
+
+                    <DataGrid ItemsSource="{Binding Candidates}"
+                              SelectedItem="{Binding SelectedCandidate, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Margin="0,5,0,0"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Полное имя" Binding="{Binding FullName}" Width="*"/>
+                            <DataGridTextColumn Header="Телефон" Binding="{Binding Telephone}" Width="170"/>
+                            <DataGridTextColumn Header="Образование"
+                                                Binding="{Binding Education, Converter={x:Static conv:EnumDescriptionConverter.Instance}}"
+                                                Width="250"/>
+                            <DataGridTextColumn Header="Опыт (лет)" Binding="{Binding ExperienceYears}" Width="130"/>
+                            <DataGridTextColumn Header="Зарплата"
+                                                Binding="{Binding ExpectedSalary, StringFormat='{}{0:N0} ₽'}"
+                                                Width="130"/>
+                            <DataGridTemplateColumn Header="Статус" Width="220">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding Status, Converter={x:Static conv:StatusToBrushConverter.Instance}}"
+                                                Padding="8,2" CornerRadius="4"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,2">
+                                            <TextBlock Text="{Binding Status, Converter={x:Static conv:EnumDescriptionConverter.Instance}}"
+                                                       Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Вакансии" DataContext="{Binding VacancyTab}">
+                <DockPanel Margin="0">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5" Spacing="10">
+                        <Button Content="Обновить" Command="{Binding LoadCommand}"/>
+                        <Button Content="Добавить" Command="{Binding AddCommand}" Background="Green" Foreground="White"/>
+                        <Button Content="Редактировать" Command="{Binding EditCommand}" Background="DodgerBlue" Foreground="White"/>
+                        <Button Content="Удалить" Command="{Binding DeleteCommand}" Background="Red" Foreground="White"/>
+                    </StackPanel>
+
+                    <DataGrid ItemsSource="{Binding Vacancies}"
+                              SelectedItem="{Binding SelectedVacancy, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Margin="0,5,0,0"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="250"/>
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
+                            <DataGridTextColumn Header="Требования" Binding="{Binding Requirements}" Width="*"/>
+                            <DataGridTextColumn Header="Зарплата"
+                                                Binding="{Binding Salary, StringFormat='{}{0:N0} ₽'}"
+                                                Width="130"/>
+                            <DataGridTemplateColumn Header="Статус" Width="180">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border Background="{Binding Status, Converter={x:Static conv:VacancyStatusToBrushConverter.Instance}}"
+                                                Padding="8,2" CornerRadius="4"
+                                                HorizontalAlignment="Left" VerticalAlignment="Center" Margin="4,2">
+                                            <TextBlock Text="{Binding Status, Converter={x:Static conv:EnumDescriptionConverter.Instance}}"
+                                                       Foreground="White" FontWeight="SemiBold" FontSize="12"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Header="Дата размещения"
+                                                Binding="{Binding PostedDate, StringFormat='{}{0:dd.MM.yyyy}'}"
+                                                Width="160"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+
+            <TabItem Header="Собеседования" DataContext="{Binding InterviewTab}">
+                <DockPanel Margin="0">
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5" Spacing="10">
+                        <Button Content="Назначить собеседование" Command="{Binding ScheduleCommand}"
+                                Background="Green" Foreground="White"/>
+                        <Button Content="Завершить собеседование" Command="{Binding CompleteCommand}"
+                                Background="DodgerBlue" Foreground="White"/>
+                        <Button Content="Удалить" Command="{Binding DeleteCommand}"
+                                Background="Red" Foreground="White"/>
+                        <Button Content="Обновить" Command="{Binding LoadCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0,5" Spacing="10">
+                        <TextBlock Text="Фильтр:" VerticalAlignment="Center"/>
+                        <ComboBox ItemsSource="{Binding CandidatesForFilter}"
+                                  SelectedItem="{Binding FilterCandidate}" Width="200"
+                                  PlaceholderText="Соискатель">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding FullName}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox ItemsSource="{Binding VacanciesForFilter}"
+                                  SelectedItem="{Binding FilterVacancy}" Width="200"
+                                  PlaceholderText="Вакансия">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Title}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <ComboBox ItemsSource="{Binding Results}"
+                                  SelectedItem="{Binding FilterResult}" Width="200"
+                                  PlaceholderText="Результат">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={x:Static conv:EnumDescriptionConverter.Instance}}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <Button Content="Применить" Command="{Binding ApplyFiltersCommand}"/>
+                        <Button Content="Сбросить фильтры" Command="{Binding ResetFiltersCommand}"/>
+                    </StackPanel>
+
+                    <DataGrid ItemsSource="{Binding Interviews}"
+                              SelectedItem="{Binding SelectedInterview, Mode=TwoWay}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              Margin="0,5,0,0"
+                              GridLinesVisibility="Horizontal">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата и время"
+                                                Binding="{Binding ScheduledDateTime, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"
+                                                Width="180"/>
+                            <DataGridTextColumn Header="Соискатель"
+                                                Binding="{Binding Candidate.FullName}"
+                                                Width="*"/>
+                            <DataGridTextColumn Header="Вакансия"
+                                                Binding="{Binding Vacancy.Title}"
+                                                Width="*"/>
+                            <DataGridTextColumn Header="Формат"
+                                                Binding="{Binding Format, Converter={x:Static conv:EnumDescriptionConverter.Instance}}"
+                                                Width="150"/>
+                            <DataGridTextColumn Header="Результат"
+                                                Binding="{Binding Result, Converter={x:Static conv:EnumDescriptionConverter.Instance}}"
+                                                Width="180"/>
+                            <DataGridTextColumn Header="Комментарий"
+                                                Binding="{Binding Comment}"
+                                                Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </DockPanel>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>
+
