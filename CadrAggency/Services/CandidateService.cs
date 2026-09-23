@@ -49,6 +49,9 @@ namespace CadrAggency.Services
 
         /// <summary>
         /// Возвращает список кандидатов с учётом фильтров и поиска.
+        /// Фильтры по статусу, образованию и зарплате выполняются на стороне БД.
+        /// Текстовый поиск выполняется в памяти, так как SQLite не поддерживает
+        /// регистронезависимый поиск по кириллице средствами SQL.
         /// </summary>
         /// <param_name="searchTerm">Поисковая строка (имя, навыки, опыт).</param>
         /// <param_name="status">Фильтр по статусу кандидата.</param>
@@ -65,20 +68,26 @@ namespace CadrAggency.Services
         {
             var query = _context.Candidates.AsNoTracking().AsQueryable();
 
-            if (!string.IsNullOrWhiteSpace(searchTerm))
-            {
-                query = query.Where(c =>
-                    c.FullName.ToLower().Contains(searchTerm.ToLower()) ||
-                    c.Skills.ToLower().Contains(searchTerm.ToLower()) ||
-                    c.ExperienceYears.ToString().Contains(searchTerm));
-            }
-
+            // Фильтры_на_стороне БД
             if (status.HasValue) query = query.Where(c => c.Status == status.Value);
             if (education.HasValue) query = query.Where(c => c.Education == education.Value);
             if (minSalary.HasValue) query = query.Where(c => c.ExpectedSalary >= minSalary.Value);
             if (maxSalary.HasValue) query = query.Where(c => c.ExpectedSalary <= maxSalary.Value);
 
-            return await query.ToListAsync();
+            var list = await query.ToListAsync();
+
+            // Текстовый_поиск — в памяти (регистронезависимый, работает с кириллицей)
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.Trim();
+                list = list.Where(c =>
+                    (c.FullName?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    (c.Skills?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    c.ExperienceYears.ToString().Contains(term)
+                ).ToList();
+            }
+
+            return list;
         }
 
         /// <summary>
@@ -205,5 +214,4 @@ namespace CadrAggency.Services
         }
     }
 }
-
 
